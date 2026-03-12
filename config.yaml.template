@@ -1,0 +1,53 @@
+# Configuration Template for finledger
+# Copy this to config.yaml and fill in your values
+
+# Statement directories
+statements:
+  credit_card_dir: "/Users/rmuktader/Statements/creditcard"
+  checking_dir: "/Users/rmuktader/Statements"
+
+# Google Sheets configuration
+google_sheets:
+  spreadsheet_id: "YOUR_SPREADSHEET_ID_HERE"
+  summary_sheet_name: "Monthly Summary"
+  detail_sheet_name: "Transaction Detail"
+  credentials_file: "client_secret.json"
+  token_file: "token.json"
+  scopes:
+    - "https://www.googleapis.com/auth/spreadsheets"
+
+# Category mapping rules (regex patterns)
+# Add your own patterns to match transaction descriptions
+category_mapping:
+  UTILITIES:
+    - "PROVIDENCE WATER"
+    - "NARRAGANSETT BAY"
+    - "PPL RHODE ISLAND"
+  LOAN_PAYMENT:
+    - "TD Bank.*LOAN PAYMENT"
+  MUNICIPAL_FEES:
+    - "CITY OF PROVIDEN"
+    - "CITY HALL SYSTEM"
+    - "PROVIDENCE RI CO"
+  OFFICE_SUPPLIES:
+    - "STAPLES"
+    - "OFFICE DEPOT"
+  PROFESSIONAL_SERVICES:
+    - "LEGAL"
+    - "ACCOUNTING"
+  INSURANCE:
+    - "INSURANCE"
+  RENT:
+    - "RENT"
+  PAYROLL:
+    - "PAYROLL"
+    - "SALARY"
+  TAXES:
+    - "TAX"
+    - "IRS"
+
+# Processing options
+processing:
+  year: 2024
+  skip_validation: false
+  dry_run: false
