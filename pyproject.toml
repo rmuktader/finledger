@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "finledger"
+version = "1.0.0"
+description = "Financial ledger system for credit card and checking account statements with Google Sheets integration"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [
+    { name = "Rayhan Muktader", email = "rmuktader@gmail.com" }
+]
+keywords = ["finance", "ledger", "accounting", "google-sheets", "statements"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Accounting",
+]
+dependencies = [
+    "ccparse>=0.2.0",
+    "chkparse>=1.0.0",
+    "gspread>=6.0.0",
+    "google-auth>=2.0.0",
+    "pyyaml>=6.0",
+    "click>=8.0",
+    "pandas>=2.0",
+]
+
+[project.scripts]
+finledger = "finledger.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/finledger"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=4.0",
+]
