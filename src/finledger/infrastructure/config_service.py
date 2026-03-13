@@ -66,19 +66,8 @@ def load_config(config_path: str = "config.yaml") -> Config:
         raise ConfigurationError(f"Configuration file not found: {config_path}")
     
     try:
-        with open(config_file) as f:
-            data = yaml.safe_load(f)
+        data = _parse_config_file(config_file)
         
-        if not data:
-            raise ConfigurationError("Configuration file is empty")
-        
-        # Validate required sections
-        required_sections = ['statements', 'google_sheets', 'category_mapping', 'processing']
-        missing = [s for s in required_sections if s not in data]
-        if missing:
-            raise ConfigurationError(f"Missing required sections: {missing}")
-        
-        # Build config object
         config = Config(
             statements=StatementsConfig(**data['statements']),
             google_sheets=GoogleSheetsConfig(**data['google_sheets']),
@@ -90,11 +79,24 @@ def load_config(config_path: str = "config.yaml") -> Config:
         return config
         
     except yaml.YAMLError as e:
-        raise ConfigurationError(f"Invalid YAML syntax: {e}")
+        raise ConfigurationError(f"Invalid YAML syntax: {e}") from e
     except TypeError as e:
-        raise ConfigurationError(f"Invalid configuration structure: {e}")
+        raise ConfigurationError(f"Invalid configuration structure: {e}") from e
     except Exception as e:
-        raise ConfigurationError(f"Failed to load configuration: {e}")
+        raise ConfigurationError(f"Failed to load configuration: {e}") from e
+
+
+def _parse_config_file(config_file: Path) -> dict:
+    """Parse YAML config file and validate required sections are present."""
+    with open(config_file) as f:
+        if not (data := yaml.safe_load(f)):
+            raise ConfigurationError("Configuration file is empty")
+    
+    required_sections = ['statements', 'google_sheets', 'category_mapping', 'processing']
+    if missing := [s for s in required_sections if s not in data]:
+        raise ConfigurationError(f"Missing required sections: {missing}")
+    
+    return data
 
 
 def validate_config(config: Config) -> None:
