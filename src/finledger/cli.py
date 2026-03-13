@@ -6,6 +6,7 @@ from pathlib import Path
 
 import click
 
+from .application.preview_service import PreviewService
 from .application.use_cases import (
     DisplayLedgerSummaryUseCase,
     GenerateMonthlyAggregatesUseCase,
@@ -70,7 +71,12 @@ def main():
     is_flag=True,
     help='Preview without syncing to Google Sheets'
 )
-def ingest(cc_dir, checking_dir, config, year, dry_run):
+@click.option(
+    '--preview',
+    is_flag=True,
+    help='Display data in rich terminal tables instead of syncing'
+)
+def ingest(cc_dir, checking_dir, config, year, dry_run, preview):
     """
     Ingest statements from directories and display summary.
     
@@ -111,7 +117,17 @@ def ingest(cc_dir, checking_dir, config, year, dry_run):
         aggregate_uc = GenerateMonthlyAggregatesUseCase(aggregation_service)
         aggregates = aggregate_uc.execute(ledger, cfg.processing.year)
         
-        if dry_run:
+        # Display in rich tables if preview flag is set
+        if preview:
+            preview_service = PreviewService()
+            preview_service.display_category_breakdown(ledger, cfg.processing.year)
+            preview_service.display_monthly_summary(ledger, cfg.processing.year)
+            preview_service.display_transaction_detail(ledger, cfg.processing.year, limit=50)
+            
+            click.echo("\n" + "=" * 60)
+            click.echo("PREVIEW MODE - No changes made to Google Sheets")
+            click.echo("=" * 60)
+        elif dry_run:
             click.echo("\n" + "=" * 60)
             click.echo("DRY RUN - No changes made to Google Sheets")
             click.echo("=" * 60)
