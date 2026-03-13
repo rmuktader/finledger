@@ -146,7 +146,7 @@ class CategoryMappingService:
             return entry
             
         except Exception as e:
-            raise CategoryMappingError(f"Failed to categorize entry: {e}")
+            raise CategoryMappingError(f"Failed to categorize entry: {e}") from e
 
 
 class AggregationService:
@@ -206,7 +206,7 @@ class AggregationService:
             return aggregates
             
         except Exception as e:
-            raise AggregationError(f"Failed to compute aggregates: {e}")
+            raise AggregationError(f"Failed to compute aggregates: {e}") from e
     
     def compute_yearly_total(
         self,
