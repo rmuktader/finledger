@@ -114,6 +114,12 @@ uv run finledger ingest \
   --cc-dir /path/to/creditcard/statements \
   --checking-dir /path/to/checking/statements
 
+# Preview with rich terminal tables (no Google Sheets sync)
+uv run finledger ingest \
+  --cc-dir /path/to/creditcard/statements \
+  --checking-dir /path/to/checking/statements \
+  --preview
+
 # Override year from config
 uv run finledger ingest \
   --cc-dir /path/to/creditcard/statements \
@@ -181,6 +187,16 @@ LOAN_PAYMENT
 ---
 
 ## Use Cases
+
+### Preview Data Before Syncing
+
+```bash
+# View data in beautiful terminal tables without touching Google Sheets
+uv run finledger ingest \
+  --cc-dir ~/Statements/creditcard \
+  --checking-dir ~/Statements/checking \
+  --preview
+```
 
 ### Monthly Bookkeeping
 
