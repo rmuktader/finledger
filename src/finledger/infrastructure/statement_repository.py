@@ -21,64 +21,27 @@ class StatementRepositoryImpl(StatementRepository):
         self.cc_parser = TDStatementParser()
     
     def load_credit_card_statements(self, directory: Path) -> List[any]:
-        """
-        Load all credit card statements from directory using ccparse.
-        
-        Args:
-            directory: Path to directory containing CC statement PDFs
-            
-        Returns:
-            List of parsed credit card statements
-            
-        Raises:
-            StatementIngestionError: If directory doesn't exist or parsing fails
-        """
-        if not directory.exists():
-            raise StatementIngestionError(f"Directory not found: {directory}")
-        
-        if not directory.is_dir():
-            raise StatementIngestionError(f"Not a directory: {directory}")
-        
-        statements = []
-        pdf_files = sorted(directory.glob("*.pdf"))
-        
-        if not pdf_files:
-            logger.warning(f"No PDF files found in {directory}")
-            return statements
-        
-        logger.info(f"Found {len(pdf_files)} PDF files in {directory}")
-        
-        for pdf in pdf_files:
-            try:
-                logger.debug(f"Parsing credit card statement: {pdf.name}")
-                stmt = self.cc_parser.parse(str(pdf))
-                
-                # Attach filename for auditability
-                stmt.filename = pdf.name
-                statements.append(stmt)
-                
-                logger.info(f"✓ Parsed {pdf.name}: {len(stmt.transactions)} transactions")
-                
-            except Exception as e:
-                logger.error(f"✗ Failed to parse {pdf.name}: {e}")
-                # Continue processing other files
-                continue
-        
-        logger.info(f"Successfully loaded {len(statements)} credit card statements")
-        return statements
+        """Load all credit card statements from directory using ccparse."""
+        return self._load_statements(directory, self.cc_parser.parse, "credit card")
     
     def load_checking_statements(self, directory: Path) -> List[any]:
+        """Load all checking statements from directory using chkparse."""
+        return self._load_statements(directory, parse_checking, "checking")
+    
+    def _load_statements(self, directory: Path, parse_fn, label: str) -> List[any]:
         """
-        Load all checking statements from directory using chkparse.
+        Load all statements from a directory using the given parser.
         
         Args:
-            directory: Path to directory containing checking statement PDFs
+            directory: Path to directory containing statement PDFs
+            parse_fn: Callable that parses a PDF path into a statement
+            label: Human-readable label for log messages
             
         Returns:
-            List of parsed checking statements
+            List of parsed statements
             
         Raises:
-            StatementIngestionError: If directory doesn't exist or parsing fails
+            StatementIngestionError: If directory doesn't exist or is invalid
         """
         if not directory.exists():
             raise StatementIngestionError(f"Directory not found: {directory}")
@@ -97,19 +60,14 @@ class StatementRepositoryImpl(StatementRepository):
         
         for pdf in pdf_files:
             try:
-                logger.debug(f"Parsing checking statement: {pdf.name}")
-                stmt = parse_checking(str(pdf))
-                
-                # Attach filename for auditability
+                logger.debug(f"Parsing {label} statement: {pdf.name}")
+                stmt = parse_fn(str(pdf))
                 stmt.filename = pdf.name
                 statements.append(stmt)
-                
                 logger.info(f"✓ Parsed {pdf.name}: {len(stmt.transactions)} transactions")
-                
             except Exception as e:
                 logger.error(f"✗ Failed to parse {pdf.name}: {e}")
-                # Continue processing other files
                 continue
         
-        logger.info(f"Successfully loaded {len(statements)} checking statements")
+        logger.info(f"Successfully loaded {len(statements)} {label} statements")
         return statements
